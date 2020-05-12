@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<b:beans xmlns="http://www.springframework.org/schema/security"
+         xmlns:b="http://www.springframework.org/schema/beans"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:http="http://www.springframework.org/schema/p"
+         xmlns:security="http://www.springframework.org/schema/c"
+         xsi:schemaLocation="http://www.springframework.org/schema/beans
+         http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://www.springframework.org/schema/security
+         https://www.springframework.org/schema/security/spring-security.xsd">
+
+
+    <http auto-config="true">
+
+
+
+        <form-login login-page="/login"
+        default-target-url="/welcome"
+        authentication-failure-url="/login?error"
+        username-parameter="j_username"
+        password-parameter="j_password"
+        login-processing-url="/j_spring_security_check"/>
+        <logout logout-url="/logout"
+                logout-success-url="/logoutSuccess"/>
+        <access-denied-handler error-page="/accessDenied"/>
+
+        <csrf disabled="true" />
+    </http>
+
+
+    <authentication-manager>
+        <authentication-provider>
+
+            <jdbc-user-service data-source-ref="dataSource"
+                               users-by-username-query="select username, password ,enabled from registrationtable where ? in (substring_index(concat(username, '~',email),'~', 1),
+             substring_index(concat(username, '~',email),'~', -1))"
+
+                               authorities-by-username-query="select username ,role from registrationtable where username=?"/>
+        </authentication-provider>
+
+    </authentication-manager>
+
+    <b:bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <b:property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+        <b:property name="url" value="jdbc:mysql://localhost:3306/onlinebookservice"/>
+        <b:property name="username" value="root"/>
+        <b:property name="password" value="1234"/>
+    </b:bean>
+
+
+    <b:bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <b:property name="dataSource" ref="dataSource"/>
+    </b:bean>
+
+</b:beans>
